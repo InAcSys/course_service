@@ -1,20 +1,21 @@
-using Microsoft.EntityFrameworkCore;
 using CourseService.Infrastructure.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace CourseService.Infrastructure.Repositories.Abstracts
 {
-    public class Repository<T, TKey>(DbContext dbContext) : IRepository<T, TKey> where T : class
+    public class Repository<T, TKey>(DbContext dbContext) : IRepository<T, TKey>
+        where T : class
     {
         protected readonly DbContext _dbContext = dbContext;
 
-        public async virtual Task<T> Create(T entity)
+        public virtual async Task<T> Create(T entity)
         {
             await _dbContext.Set<T>().AddAsync(entity);
             await _dbContext.SaveChangesAsync();
             return entity;
         }
 
-        public async virtual Task<bool> Delete(TKey id)
+        public virtual async Task<bool> Delete(TKey id)
         {
             await _dbContext.Set<T>().FindAsync(id);
             var entity = await _dbContext.Set<T>().FindAsync(id);
@@ -27,29 +28,32 @@ namespace CourseService.Infrastructure.Repositories.Abstracts
             return true;
         }
 
-        public async virtual Task<IEnumerable<T>> GetAll(int pageNumber, int pageSize)
+        public virtual async Task<IEnumerable<T>> GetAll(int pageNumber, int pageSize)
         {
             if (pageNumber < 1)
             {
-                throw new ArgumentOutOfRangeException(nameof(pageNumber), "Page number must be greater than or equal to 1.");
+                throw new ArgumentOutOfRangeException(
+                    nameof(pageNumber),
+                    "Page number must be greater than or equal to 1."
+                );
             }
             if (pageSize < 1)
             {
-                throw new ArgumentOutOfRangeException(nameof(pageSize), "Page size must be greater than or equal to 1.");
+                throw new ArgumentOutOfRangeException(
+                    nameof(pageSize),
+                    "Page size must be greater than or equal to 1."
+                );
             }
 
             var skip = (pageNumber - 1) * pageSize;
             var take = pageSize;
 
-            var entities = await _dbContext.Set<T>()
-                .Skip(skip)
-                .Take(take)
-                .ToListAsync();
+            var entities = await _dbContext.Set<T>().Skip(skip).Take(take).ToListAsync();
 
             return entities;
         }
 
-        public async virtual Task<T?> GetById(TKey id)
+        public virtual async Task<T?> GetById(TKey id)
         {
             if (EqualityComparer<TKey>.Default.Equals(id, default))
             {
@@ -59,17 +63,19 @@ namespace CourseService.Infrastructure.Repositories.Abstracts
             return entity;
         }
 
-        public async virtual Task<T?> GetByName(string name)
+        public virtual async Task<T?> GetByName(string name)
         {
             if (name is null)
             {
                 throw new ArgumentNullException(nameof(name));
             }
-            var entity = await _dbContext.Set<T>().FirstOrDefaultAsync(e => EF.Property<string>(e, "Name") == name);
+            var entity = await _dbContext
+                .Set<T>()
+                .FirstOrDefaultAsync(e => EF.Property<string>(e, "Name") == name);
             return entity;
         }
 
-        public async virtual Task<T> Update(TKey id, T entity)
+        public virtual async Task<T> Update(TKey id, T entity)
         {
             if (EqualityComparer<TKey>.Default.Equals(id, default))
             {

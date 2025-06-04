@@ -7,8 +7,7 @@ namespace CourseService.Application.Services.Concretes
 {
     public class CourseService : Service<Course, Guid>
     {
-        public CourseService(IValidator<Course> validator, IRepository<Course, Guid> repository) : base(validator, repository)
-        {
-        }
+        public CourseService(IValidator<Course> validator, IRepository<Course, Guid> repository)
+            : base(validator, repository) { }
     }
 }

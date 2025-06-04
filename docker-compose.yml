@@ -1,15 +1,14 @@
 services:
-  course-services:
+  course-service:
     build: .
     env_file: .env
-    extra_hosts:
-      - "localhost:host-gateway"
     ports:
       - "${COURSE_SERVICE_APP_PORT}:80"
     depends_on:
       - course-service-db
     networks:
       - course-service-net
+      - backend-net
     restart: unless-stopped
 
   course-service-db:
@@ -31,3 +30,5 @@ volumes:
 
 networks:
   course-service-net:
+  backend-net:
+    external: true

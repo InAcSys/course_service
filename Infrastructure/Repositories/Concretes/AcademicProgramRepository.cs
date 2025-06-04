@@ -6,8 +6,7 @@ namespace CourseService.Infrastructure.Repositories.Concretes
 {
     public class AcademicProgramRepository : Repository<AcademicProgram, int>
     {
-        public AcademicProgramRepository(DbContext dbContext) : base(dbContext)
-        {
-        }
+        public AcademicProgramRepository(DbContext dbContext)
+            : base(dbContext) { }
     }
 }

@@ -1,16 +1,12 @@
-using FluentValidation;
 using CourseService.Application.Services.Interfaces;
 using CourseService.Infrastructure.Repositories.Interfaces;
+using FluentValidation;
 
 namespace CourseService.Application.Services.Abstracts
 {
-    public class Service<T, TKey>
-    (
-        IValidator<T> validator,
-        IRepository<T, TKey> repository
-    ) : IService<T, TKey>
+    public class Service<T, TKey>(IValidator<T> validator, IRepository<T, TKey> repository)
+        : IService<T, TKey>
     {
-
         protected readonly IValidator<T> _validator = validator;
         protected readonly IRepository<T, TKey> _repository = repository;
 

@@ -6,8 +6,7 @@ namespace CourseService.Infrastructure.Repositories.Concretes
 {
     public class CourseRepository : Repository<Course, Guid>
     {
-        public CourseRepository(DbContext dbContext) : base(dbContext)
-        {
-        }
+        public CourseRepository(DbContext dbContext)
+            : base(dbContext) { }
     }
 }

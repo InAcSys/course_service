@@ -15,19 +15,24 @@ namespace CourseService.Presentation.Configuration
     {
         public static IServiceCollection AddConfiguration(this IServiceCollection services)
         {
-            var connection = Environment.GetEnvironmentVariable("COURSE_SERVICE_DATABASE_STRING_CONNECTION");
+            var connection = Environment.GetEnvironmentVariable(
+                "COURSE_SERVICE_DATABASE_STRING_CONNECTION"
+            );
             if (string.IsNullOrEmpty(connection))
             {
                 throw new ArgumentException("Connection string is not set.");
             }
-            services.AddDbContext<DbContext, CourseServiceDbContext>(
-                options => options.UseNpgsql(
+            services.AddDbContext<DbContext, CourseServiceDbContext>(options =>
+                options.UseNpgsql(
                     connection,
                     b => b.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name)
                 )
             );
 
-            services.AddScoped<IService<Course, Guid>, CourseService.Application.Services.Concretes.CourseService>();
+            services.AddScoped<
+                IService<Course, Guid>,
+                CourseService.Application.Services.Concretes.CourseService
+            >();
             services.AddScoped<IService<AcademicProgram, int>, AcademicProgramService>();
             services.AddScoped<IService<AcademicLevel, int>, AcademicLevelService>();
             services.AddScoped<IService<Subject, int>, SubjectService>();
