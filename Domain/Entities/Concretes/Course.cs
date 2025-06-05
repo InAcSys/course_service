@@ -4,6 +4,6 @@ namespace CourseService.Domain.Entities.Concretes
 {
     public class Course : Entity<Guid>
     {
-        public string Name { get; set; } = "";
+        public int AcademicLevelId { get; set; }
     }
 }

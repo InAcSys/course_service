@@ -4,7 +4,6 @@ namespace CourseService.Domain.Entities.Concretes
 {
     public class AcademicLevel : Entity<int>
     {
-        public string Name { get; set; } = "";
         public int AcademicProgramId { get; set; }
     }
 }
