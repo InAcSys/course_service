@@ -1,7 +1,7 @@
 using AutoMapper;
 using CourseService.Application.Services.Interfaces;
+using CourseService.Domain.DTOs.Courses;
 using CourseService.Domain.DTOs.Responses;
-using CourseService.Domain.DTOs.Subjects;
 using CourseService.Domain.Entities.Concretes;
 using CourseService.Presentation.Responses.Concretes;
 using Microsoft.AspNetCore.Mvc;
@@ -9,9 +9,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace CourseService.Presentation.Controllers
 {
     [ApiController, Route("api/[controller]")]
-    public class SubjectController(IService<Subject, Guid> service, IMapper mapper) : ControllerBase
+    public class CourseController(IService<Course, Guid> service, IMapper mapper) : ControllerBase
     {
-        protected readonly IService<Subject, Guid> _service = service;
+        protected readonly IService<Course, Guid> _service = service;
         private readonly IMapper _mapper = mapper;
 
         [HttpGet]
@@ -34,10 +34,10 @@ namespace CourseService.Presentation.Controllers
             var result = await _service.GetAll(pageNumber, pageSize, tenantId);
             var size = await _service.Count(tenantId);
 
-            var response = new SuccessResponse<PaginatedResponseDTO<Subject>>(
+            var response = new SuccessResponse<PaginatedResponseDTO<Course>>(
                 200,
-                "Subjects retrieved successfully.",
-                new PaginatedResponseDTO<Subject>(result.ToList(), size, pageNumber, pageSize)
+                "Courses retrieved successfully.",
+                new PaginatedResponseDTO<Course>(result.ToList(), size, pageNumber, pageSize)
             );
 
             return StatusCode(response.StatusCode, response);
@@ -48,50 +48,50 @@ namespace CourseService.Presentation.Controllers
         {
             var result = await _service.GetById(id, tenantId);
             if (result is null)
-                return StatusCode(404, new ErrorResponse(404, "Subject not found", null));
+                return StatusCode(404, new ErrorResponse(404, "Course not found", null));
 
-            return Ok(new SuccessResponse<Subject>(200, "Subject found", result));
+            return Ok(new SuccessResponse<Course>(200, "Course found", result));
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(
             [FromQuery] Guid tenantId,
-            [FromBody] CreateSubjectDTO subject
+            [FromBody] CreateCourseDTO course
         )
         {
-            if (subject is null)
+            if (course is null)
                 return BadRequest();
 
-            var currentSubject = _mapper.Map<Subject>(subject);
-            currentSubject.TenantId = tenantId;
+            var currentCourse = _mapper.Map<Course>(course);
+            currentCourse.TenantId = tenantId;
 
-            var createdSubject = await _service.Create(currentSubject);
+            var createdCourse = await _service.Create(currentCourse);
 
             return CreatedAtAction(
                 nameof(GetById),
-                new { id = createdSubject.Id, tenantId = tenantId },
-                new SuccessResponse<Subject>(201, "Subject created", createdSubject)
+                new { id = createdCourse.Id, tenantId = tenantId },
+                new SuccessResponse<Course>(201, "Course created", createdCourse)
             );
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(
             Guid id,
-            [FromBody] UpdateSubjectDTO subject,
+            [FromBody] UpdateCourseDTO course,
             [FromQuery] Guid tenantId
         )
         {
-            if (subject is null)
+            if (course is null)
                 return BadRequest();
 
-            var currentSubject = _mapper.Map<Subject>(subject);
-            var updatedSubject = await _service.Update(id, currentSubject, tenantId);
+            var currentCourse = _mapper.Map<Course>(course);
+            var updatedCourse = await _service.Update(id, currentCourse, tenantId);
 
-            if (updatedSubject is null)
-                return NotFound(new ErrorResponse(404, "Subject not found", null));
+            if (updatedCourse is null)
+                return NotFound(new ErrorResponse(404, "Course not found", null));
 
             return Ok(
-                new SuccessResponse<Subject>(200, "Subject updated successfully", updatedSubject)
+                new SuccessResponse<Course>(200, "Course updated successfully", updatedCourse)
             );
         }
 
@@ -100,9 +100,9 @@ namespace CourseService.Presentation.Controllers
         {
             var result = await _service.Delete(id, tenantId);
             if (!result)
-                return NotFound(new ErrorResponse(404, "Subject not found", null));
+                return NotFound(new ErrorResponse(404, "Course not found", null));
 
-            return Ok(new SuccessResponse<bool>(200, "Subject deleted successfully", result));
+            return Ok(new SuccessResponse<bool>(200, "Course deleted successfully", result));
         }
 
         [HttpGet("search")]
@@ -126,10 +126,10 @@ namespace CourseService.Presentation.Controllers
             var result = await _service.Search(pageNumber, pageSize, tenantId, search);
             var size = await _service.CountSearchResults(search, tenantId);
 
-            var response = new SuccessResponse<PaginatedResponseDTO<Subject>>(
+            var response = new SuccessResponse<PaginatedResponseDTO<Course>>(
                 200,
                 "Search completed successfully.",
-                new PaginatedResponseDTO<Subject>(result.ToList(), size, pageNumber, pageSize)
+                new PaginatedResponseDTO<Course>(result.ToList(), size, pageNumber, pageSize)
             );
 
             return Ok(response);

@@ -1,7 +1,7 @@
 using AutoMapper;
 using CourseService.Application.Services.Interfaces;
+using CourseService.Domain.DTOs.AcademicLevels;
 using CourseService.Domain.DTOs.Responses;
-using CourseService.Domain.DTOs.Subjects;
 using CourseService.Domain.Entities.Concretes;
 using CourseService.Presentation.Responses.Concretes;
 using Microsoft.AspNetCore.Mvc;
@@ -9,9 +9,10 @@ using Microsoft.AspNetCore.Mvc;
 namespace CourseService.Presentation.Controllers
 {
     [ApiController, Route("api/[controller]")]
-    public class SubjectController(IService<Subject, Guid> service, IMapper mapper) : ControllerBase
+    public class AcademicLevelController(IService<AcademicLevel, int> service, IMapper mapper)
+        : ControllerBase
     {
-        protected readonly IService<Subject, Guid> _service = service;
+        protected readonly IService<AcademicLevel, int> _service = service;
         private readonly IMapper _mapper = mapper;
 
         [HttpGet]
@@ -34,75 +35,83 @@ namespace CourseService.Presentation.Controllers
             var result = await _service.GetAll(pageNumber, pageSize, tenantId);
             var size = await _service.Count(tenantId);
 
-            var response = new SuccessResponse<PaginatedResponseDTO<Subject>>(
+            var response = new SuccessResponse<PaginatedResponseDTO<AcademicLevel>>(
                 200,
-                "Subjects retrieved successfully.",
-                new PaginatedResponseDTO<Subject>(result.ToList(), size, pageNumber, pageSize)
+                "AcademicLevels retrieved successfully.",
+                new PaginatedResponseDTO<AcademicLevel>(result.ToList(), size, pageNumber, pageSize)
             );
 
             return StatusCode(response.StatusCode, response);
         }
 
         [HttpGet("id/{id}")]
-        public async Task<IActionResult> GetById(Guid id, [FromQuery] Guid tenantId)
+        public async Task<IActionResult> GetById(int id, [FromQuery] Guid tenantId)
         {
             var result = await _service.GetById(id, tenantId);
             if (result is null)
-                return StatusCode(404, new ErrorResponse(404, "Subject not found", null));
+                return StatusCode(404, new ErrorResponse(404, "AcademicLevel not found", null));
 
-            return Ok(new SuccessResponse<Subject>(200, "Subject found", result));
+            return Ok(new SuccessResponse<AcademicLevel>(200, "AcademicLevel found", result));
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(
             [FromQuery] Guid tenantId,
-            [FromBody] CreateSubjectDTO subject
+            [FromBody] CreateAcademicLevelDTO academicLevel
         )
         {
-            if (subject is null)
+            if (academicLevel is null)
                 return BadRequest();
 
-            var currentSubject = _mapper.Map<Subject>(subject);
-            currentSubject.TenantId = tenantId;
+            var currentAcademicLevel = _mapper.Map<AcademicLevel>(academicLevel);
+            currentAcademicLevel.TenantId = tenantId;
 
-            var createdSubject = await _service.Create(currentSubject);
+            var createdAcademicLevel = await _service.Create(currentAcademicLevel);
 
             return CreatedAtAction(
                 nameof(GetById),
-                new { id = createdSubject.Id, tenantId = tenantId },
-                new SuccessResponse<Subject>(201, "Subject created", createdSubject)
+                new { id = createdAcademicLevel.Id, tenantId = tenantId },
+                new SuccessResponse<AcademicLevel>(
+                    201,
+                    "AcademicLevel created",
+                    createdAcademicLevel
+                )
             );
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(
-            Guid id,
-            [FromBody] UpdateSubjectDTO subject,
+            [FromRoute] int id,
+            [FromBody] UpdateAcademicLevelDTO academicLevel,
             [FromQuery] Guid tenantId
         )
         {
-            if (subject is null)
+            if (academicLevel is null)
                 return BadRequest();
 
-            var currentSubject = _mapper.Map<Subject>(subject);
-            var updatedSubject = await _service.Update(id, currentSubject, tenantId);
+            var currentAcademicLevel = _mapper.Map<AcademicLevel>(academicLevel);
+            var updatedAcademicLevel = await _service.Update(id, currentAcademicLevel, tenantId);
 
-            if (updatedSubject is null)
-                return NotFound(new ErrorResponse(404, "Subject not found", null));
+            if (updatedAcademicLevel is null)
+                return NotFound(new ErrorResponse(404, "AcademicLevel not found", null));
 
             return Ok(
-                new SuccessResponse<Subject>(200, "Subject updated successfully", updatedSubject)
+                new SuccessResponse<AcademicLevel>(
+                    200,
+                    "AcademicLevel updated successfully",
+                    updatedAcademicLevel
+                )
             );
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid id, [FromQuery] Guid tenantId)
+        public async Task<IActionResult> Delete([FromRoute] int id, [FromQuery] Guid tenantId)
         {
             var result = await _service.Delete(id, tenantId);
             if (!result)
-                return NotFound(new ErrorResponse(404, "Subject not found", null));
+                return NotFound(new ErrorResponse(404, "AcademicLevel not found", null));
 
-            return Ok(new SuccessResponse<bool>(200, "Subject deleted successfully", result));
+            return Ok(new SuccessResponse<bool>(200, "AcademicLevel deleted successfully", result));
         }
 
         [HttpGet("search")]
@@ -126,10 +135,10 @@ namespace CourseService.Presentation.Controllers
             var result = await _service.Search(pageNumber, pageSize, tenantId, search);
             var size = await _service.CountSearchResults(search, tenantId);
 
-            var response = new SuccessResponse<PaginatedResponseDTO<Subject>>(
+            var response = new SuccessResponse<PaginatedResponseDTO<AcademicLevel>>(
                 200,
                 "Search completed successfully.",
-                new PaginatedResponseDTO<Subject>(result.ToList(), size, pageNumber, pageSize)
+                new PaginatedResponseDTO<AcademicLevel>(result.ToList(), size, pageNumber, pageSize)
             );
 
             return Ok(response);

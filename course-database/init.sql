@@ -24,7 +24,7 @@ CREATE TABLE
         "Updated" TIMESTAMP,
         "Deleted" TIMESTAMP,
         "TenantId" UUID NOT NULL,
-        CONSTRAINT "FK_AcademicPrograms" FOREIGN KEY ("AcademicProgramId") REFERENCES "AcademicPrograms" ("Id")
+        FOREIGN KEY ("AcademicProgramId") REFERENCES "AcademicPrograms" ("Id") ON DELETE CASCADE
     );
 
 -- Tabla: Courses
@@ -38,7 +38,7 @@ CREATE TABLE
         "Updated" TIMESTAMP,
         "Deleted" TIMESTAMP,
         "TenantId" UUID NOT NULL,
-        CONSTRAINT "FK_AcademicLevels" FOREIGN KEY ("AcademicLevelId") REFERENCES "AcademicLevels" ("Id")
+        FOREIGN KEY ("AcademicLevelId") REFERENCES "AcademicLevels" ("Id") ON DELETE CASCADE
     );
 
 -- Tabla: Subjects
@@ -48,12 +48,12 @@ CREATE TABLE
         "Name" VARCHAR(255) NOT NULL,
         "ShortName" VARCHAR(100) NOT NULL,
         "Code" VARCHAR(100) NOT NULL,
-        "LMSId" INT NOT NULL,
+        "LMSId" INT NULL,
         "CourseId" UUID NOT NULL,
         "IsActive" BOOLEAN NOT NULL,
         "Created" TIMESTAMP NOT NULL,
         "Updated" TIMESTAMP,
         "Deleted" TIMESTAMP,
         "TenantId" UUID NOT NULL,
-        CONSTRAINT "FK_Courses" FOREIGN KEY ("CourseId") REFERENCES "Courses" ("Id")
+        FOREIGN KEY ("CourseId") REFERENCES "Courses" ("Id") ON DELETE CASCADE
     );

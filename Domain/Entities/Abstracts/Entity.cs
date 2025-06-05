@@ -6,8 +6,8 @@ namespace CourseService.Domain.Entities.Abstracts
     {
         public TKey? Id { get; set; }
         public string Name { get; set; } = "";
-        public bool IsActive { get; set; }
-        public DateTime Created { get; set; }
+        public bool IsActive { get; set; } = true;
+        public DateTime Created { get; set; } = DateTime.UtcNow;
         public DateTime? Updated { get; set; }
         public DateTime? Deleted { get; set; }
         public Guid TenantId { get; set; }
