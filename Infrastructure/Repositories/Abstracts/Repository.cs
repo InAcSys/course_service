@@ -188,5 +188,13 @@ namespace CourseService.Infrastructure.Repositories.Abstracts
 
             return await query.Where(x => x.Name.ToLower().Contains(search)).CountAsync();
         }
+
+        public async Task<T?> GetByName(string name, Guid tenantId)
+        {
+            var entity = await _context
+                .Set<T>()
+                .FirstOrDefaultAsync(x => x.Name == name && x.TenantId == tenantId);
+            return entity;
+        }
     }
 }

@@ -59,19 +59,25 @@ namespace CourseService.Presentation.Controllers
             [FromBody] CreateSubjectDTO subject
         )
         {
-            if (subject is null)
-                return BadRequest();
+            try
+            {
+                if (subject is null)
+                    return BadRequest();
 
-            var currentSubject = _mapper.Map<Subject>(subject);
-            currentSubject.TenantId = tenantId;
+                var currentSubject = _mapper.Map<Subject>(subject);
+                currentSubject.TenantId = tenantId;
 
-            var createdSubject = await _service.Create(currentSubject);
+                var createdSubject = await _service.Create(currentSubject);
 
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = createdSubject.Id, tenantId = tenantId },
-                new SuccessResponse<Subject>(201, "Subject created", createdSubject)
-            );
+                var response = new SuccessResponse<Subject>(201, "Subject created", createdSubject);
+
+                return StatusCode(response.StatusCode, response);
+            }
+            catch (InvalidOperationException)
+            {
+                var error = new ErrorResponse(409, "Subject is already exists", null);
+                return StatusCode(error.StatusCode, error);
+            }
         }
 
         [HttpPut("{id}")]

@@ -1,5 +1,6 @@
 using CourseService.Application.Services.Interfaces;
 using CourseService.Application.Validators.Interfaces;
+using CourseService.Domain.Entities.Abstracts;
 using CourseService.Infrastructure.Repositories.Interfaces;
 using FluentValidation;
 
@@ -10,6 +11,7 @@ namespace CourseService.Application.Services.Abstracts
         IUpdateValidator<T> updateValidator,
         IRepository<T, TKey> repository
     ) : IService<T, TKey>
+        where T : MainEntity<TKey>
     {
         protected readonly ICreateValidator<T> _createValidator = createValidator;
         protected readonly IUpdateValidator<T> _updateValidator = updateValidator;
@@ -35,14 +37,21 @@ namespace CourseService.Application.Services.Abstracts
             return _repository.CountSearchResults(search, tenantId);
         }
 
-        public virtual Task<T> Create(T entity)
+        public virtual async Task<T> Create(T entity)
         {
             var result = _createValidator.Validate(entity);
             if (!result.IsValid)
             {
                 throw new ValidationException(result.Errors);
             }
-            var createdEntity = _repository.Create(entity);
+            var verifyExist = await _repository.GetByName(entity.Name, entity.TenantId);
+
+            if (verifyExist is not null)
+            {
+                throw new InvalidOperationException("Entity is already exists");
+            }
+
+            var createdEntity = await _repository.Create(entity);
             return createdEntity;
         }
 
