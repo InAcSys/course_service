@@ -1,81 +1,138 @@
+using AutoMapper;
 using CourseService.Application.Services.Interfaces;
-using CourseService.Domain.DTOs;
+using CourseService.Domain.DTOs.Courses;
+using CourseService.Domain.DTOs.Responses;
 using CourseService.Domain.Entities.Concretes;
+using CourseService.Presentation.Responses.Concretes;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CourseService.Presentation.Controllers
 {
     [ApiController, Route("api/[controller]")]
-    public class CourseController(
-        IService<Course, Guid> courseService
-    ) : ControllerBase
+    public class CourseController(IService<Course, Guid> service, IMapper mapper) : ControllerBase
     {
-        protected readonly IService<Course, Guid> _courseService = courseService;
+        protected readonly IService<Course, Guid> _service = service;
+        private readonly IMapper _mapper = mapper;
 
         [HttpGet]
-        public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 10)
+        public async Task<IActionResult> GetAll(
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] Guid tenantId = default
+        )
         {
-            var courses = await _courseService.GetAll(pageNumber, pageSize);
-            return Ok(courses);
+            if (pageNumber < 1 || pageSize < 1)
+            {
+                var error = new ErrorResponse(
+                    400,
+                    "Page number and size must be greater than 0.",
+                    null
+                );
+                return StatusCode(error.StatusCode, error);
+            }
+
+            var result = await _service.GetAll(pageNumber, pageSize, tenantId);
+            var size = await _service.Count(tenantId);
+
+            var response = new SuccessResponse<PaginatedResponseDTO<Course>>(
+                200,
+                "Courses retrieved successfully.",
+                new PaginatedResponseDTO<Course>(result.ToList(), size, pageNumber, pageSize)
+            );
+
+            return StatusCode(response.StatusCode, response);
         }
 
-        [HttpGet("{id:guid}")]
-        public async Task<IActionResult> GetById(Guid id)
+        [HttpGet("id/{id}")]
+        public async Task<IActionResult> GetById(Guid id, [FromQuery] Guid tenantId)
         {
-            var course = await _courseService.GetById(id);
-            if (course is null) return NotFound();
-            return Ok(course);
-        }
+            var result = await _service.GetById(id, tenantId);
+            if (result is null)
+                return StatusCode(404, new ErrorResponse(404, "Course not found", null));
 
-        [HttpGet("name/{name}")]
-        public async Task<IActionResult> GetByName(string name)
-        {
-            var course = await _courseService.GetByName(name);
-            if (course is null) return NotFound();
-            return Ok(course);
+            return Ok(new SuccessResponse<Course>(200, "Course found", result));
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CourseDTO course)
+        public async Task<IActionResult> Create(
+            [FromQuery] Guid tenantId,
+            [FromBody] CreateCourseDTO course
+        )
         {
-            if (course is null) return BadRequest();
-            var newCourse = new Course
-            {
-                Name = course.Name,
-                ShortName = course.ShortName,
-                LMSId = course.LMSId,
-                GradeId = course.GradeId,
-                SubjectId = course.SubjectId,
-                TeacherId = course.TeacherId
-            };
-            var createdCourse = await _courseService.Create(newCourse);
-            return CreatedAtAction(nameof(GetById), new { id = createdCourse.Id }, createdCourse);
+            if (course is null)
+                return BadRequest();
+
+            var currentCourse = _mapper.Map<Course>(course);
+            currentCourse.TenantId = tenantId;
+
+            var createdCourse = await _service.Create(currentCourse);
+
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id = createdCourse.Id, tenantId = tenantId },
+                new SuccessResponse<Course>(201, "Course created", createdCourse)
+            );
         }
 
-        [HttpPut("{id:guid}")]
-        public async Task<IActionResult> Update(Guid id, [FromBody] CourseDTO course)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(
+            Guid id,
+            [FromBody] UpdateCourseDTO course,
+            [FromQuery] Guid tenantId
+        )
         {
-            if (course is null) return BadRequest();
-            var newCourse = new Course
-            {
-                Name = course.Name,
-                ShortName = course.ShortName,
-                LMSId = course.LMSId,
-                GradeId = course.GradeId,
-                SubjectId = course.SubjectId,
-                TeacherId = course.TeacherId
-            };
-            var updatedCourse = await _courseService.Update(id, newCourse);
-            if (updatedCourse is null) return NotFound();
-            return Ok(updatedCourse);
+            if (course is null)
+                return BadRequest();
+
+            var currentCourse = _mapper.Map<Course>(course);
+            var updatedCourse = await _service.Update(id, currentCourse, tenantId);
+
+            if (updatedCourse is null)
+                return NotFound(new ErrorResponse(404, "Course not found", null));
+
+            return Ok(
+                new SuccessResponse<Course>(200, "Course updated successfully", updatedCourse)
+            );
         }
 
-        [HttpDelete("{id:guid}")]
-        public async Task<IActionResult> Delete(Guid id)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id, [FromQuery] Guid tenantId)
         {
-            var deleted = await _courseService.Delete(id);
-            if (!deleted) return NotFound();
-            return NoContent();
+            var result = await _service.Delete(id, tenantId);
+            if (!result)
+                return NotFound(new ErrorResponse(404, "Course not found", null));
+
+            return Ok(new SuccessResponse<bool>(200, "Course deleted successfully", result));
+        }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> Search(
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] Guid tenantId = default,
+            [FromQuery] string search = ""
+        )
+        {
+            if (pageNumber < 1 || pageSize < 1)
+            {
+                var error = new ErrorResponse(
+                    400,
+                    "Page number and size must be greater than 0.",
+                    null
+                );
+                return StatusCode(error.StatusCode, error);
+            }
+
+            var result = await _service.Search(pageNumber, pageSize, tenantId, search);
+            var size = await _service.CountSearchResults(search, tenantId);
+
+            var response = new SuccessResponse<PaginatedResponseDTO<Course>>(
+                200,
+                "Search completed successfully.",
+                new PaginatedResponseDTO<Course>(result.ToList(), size, pageNumber, pageSize)
+            );
+
+            return Ok(response);
         }
     }
 }

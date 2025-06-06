@@ -4,10 +4,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CourseService.Infrastructure.Repositories.Concretes
 {
-    public class AcademicLevelRepository : Repository<AcademicLevel, int>
-    {
-        public AcademicLevelRepository(DbContext dbContext) : base(dbContext)
-        {
-        }
-    }
+    public class AcademicLevelRepository(DbContext context)
+        : Repository<AcademicLevel, int>(context) { }
 }

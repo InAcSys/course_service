@@ -1,72 +1,144 @@
+using AutoMapper;
 using CourseService.Application.Services.Interfaces;
-using CourseService.Domain.DTOs;
+using CourseService.Domain.DTOs.Responses;
+using CourseService.Domain.DTOs.Subjects;
 using CourseService.Domain.Entities.Concretes;
+using CourseService.Presentation.Responses.Concretes;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CourseService.Presentation.Controllers
 {
     [ApiController, Route("api/[controller]")]
-    public class SubjectController(
-        IService<Subject, int> subjectService
-    ) : ControllerBase
+    public class SubjectController(IService<Subject, Guid> service, IMapper mapper) : ControllerBase
     {
-        protected readonly IService<Subject, int> _subjectService = subjectService;
+        protected readonly IService<Subject, Guid> _service = service;
+        private readonly IMapper _mapper = mapper;
 
         [HttpGet]
-        public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 10)
+        public async Task<IActionResult> GetAll(
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] Guid tenantId = default
+        )
         {
-            var subjects = await _subjectService.GetAll(pageNumber, pageSize);
-            return Ok(subjects);
+            if (pageNumber < 1 || pageSize < 1)
+            {
+                var error = new ErrorResponse(
+                    400,
+                    "Page number and size must be greater than 0.",
+                    null
+                );
+                return StatusCode(error.StatusCode, error);
+            }
+
+            var result = await _service.GetAll(pageNumber, pageSize, tenantId);
+            var size = await _service.Count(tenantId);
+
+            var response = new SuccessResponse<PaginatedResponseDTO<Subject>>(
+                200,
+                "Subjects retrieved successfully.",
+                new PaginatedResponseDTO<Subject>(result.ToList(), size, pageNumber, pageSize)
+            );
+
+            return StatusCode(response.StatusCode, response);
         }
 
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetById(int id)
+        [HttpGet("id/{id}")]
+        public async Task<IActionResult> GetById(Guid id, [FromQuery] Guid tenantId)
         {
-            var subject = await _subjectService.GetById(id);
-            if (subject is null) return NotFound();
-            return Ok(subject);
-        }
+            var result = await _service.GetById(id, tenantId);
+            if (result is null)
+                return StatusCode(404, new ErrorResponse(404, "Subject not found", null));
 
-        [HttpGet("name/{name}")]
-        public async Task<IActionResult> GetByName(string name)
-        {
-            var subject = await _subjectService.GetByName(name);
-            if (subject is null) return NotFound();
-            return Ok(subject);
+            return Ok(new SuccessResponse<Subject>(200, "Subject found", result));
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] SubjectDTO subject)
+        public async Task<IActionResult> Create(
+            [FromQuery] Guid tenantId,
+            [FromBody] CreateSubjectDTO subject
+        )
         {
-            if (subject is null) return BadRequest();
-            var newSubject = new Subject
+            try
             {
-                Name = subject.Name
-            };
-            var createdSubject = await _subjectService.Create(newSubject);
-            return CreatedAtAction(nameof(GetById), new { id = createdSubject.Id }, createdSubject);
+                if (subject is null)
+                    return BadRequest();
+
+                var currentSubject = _mapper.Map<Subject>(subject);
+                currentSubject.TenantId = tenantId;
+
+                var createdSubject = await _service.Create(currentSubject);
+
+                var response = new SuccessResponse<Subject>(201, "Subject created", createdSubject);
+
+                return StatusCode(response.StatusCode, response);
+            }
+            catch (InvalidOperationException)
+            {
+                var error = new ErrorResponse(409, "Subject is already exists", null);
+                return StatusCode(error.StatusCode, error);
+            }
         }
 
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, [FromBody] SubjectDTO subject)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(
+            Guid id,
+            [FromBody] UpdateSubjectDTO subject,
+            [FromQuery] Guid tenantId
+        )
         {
-            if (subject is null) return BadRequest();
-            var newSubject = new Subject
-            {
-                Id = id,
-                Name = subject.Name
-            };
-            var updatedSubject = await _subjectService.Update(id, newSubject);
-            if (updatedSubject is null) return NotFound();
-            return Ok(updatedSubject);
+            if (subject is null)
+                return BadRequest();
+
+            var currentSubject = _mapper.Map<Subject>(subject);
+            var updatedSubject = await _service.Update(id, currentSubject, tenantId);
+
+            if (updatedSubject is null)
+                return NotFound(new ErrorResponse(404, "Subject not found", null));
+
+            return Ok(
+                new SuccessResponse<Subject>(200, "Subject updated successfully", updatedSubject)
+            );
         }
 
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id, [FromQuery] Guid tenantId)
         {
-            var deletedSubject = await _subjectService.Delete(id);
-            if (!deletedSubject) return NotFound();
-            return Ok(deletedSubject);
+            var result = await _service.Delete(id, tenantId);
+            if (!result)
+                return NotFound(new ErrorResponse(404, "Subject not found", null));
+
+            return Ok(new SuccessResponse<bool>(200, "Subject deleted successfully", result));
+        }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> Search(
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] Guid tenantId = default,
+            [FromQuery] string search = ""
+        )
+        {
+            if (pageNumber < 1 || pageSize < 1)
+            {
+                var error = new ErrorResponse(
+                    400,
+                    "Page number and size must be greater than 0.",
+                    null
+                );
+                return StatusCode(error.StatusCode, error);
+            }
+
+            var result = await _service.Search(pageNumber, pageSize, tenantId, search);
+            var size = await _service.CountSearchResults(search, tenantId);
+
+            var response = new SuccessResponse<PaginatedResponseDTO<Subject>>(
+                200,
+                "Search completed successfully.",
+                new PaginatedResponseDTO<Subject>(result.ToList(), size, pageNumber, pageSize)
+            );
+
+            return Ok(response);
         }
     }
 }

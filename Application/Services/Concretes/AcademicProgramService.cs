@@ -1,14 +1,13 @@
 using CourseService.Application.Services.Abstracts;
+using CourseService.Application.Validators.Interfaces;
 using CourseService.Domain.Entities.Concretes;
 using CourseService.Infrastructure.Repositories.Interfaces;
-using FluentValidation;
 
 namespace CourseService.Application.Services.Concretes
 {
-    public class AcademicProgramService : Service<AcademicProgram, int>
-    {
-        public AcademicProgramService(IValidator<AcademicProgram> validator, IRepository<AcademicProgram, int> repository) : base(validator, repository)
-        {
-        }
-    }
+    public class AcademicProgramService(
+        ICreateValidator<AcademicProgram> createValidator,
+        IUpdateValidator<AcademicProgram> updateValidator,
+        IRepository<AcademicProgram, int> repository
+    ) : Service<AcademicProgram, int>(createValidator, updateValidator, repository) { }
 }

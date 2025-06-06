@@ -4,10 +4,5 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CourseService.Infrastructure.Repositories.Concretes
 {
-    public class SubjectRepository : Repository<Subject, int>
-    {
-        public SubjectRepository(DbContext dbContext) : base(dbContext)
-        {
-        }
-    }
+    public class SubjectRepository(DbContext context) : Repository<Subject, Guid>(context) { }
 }

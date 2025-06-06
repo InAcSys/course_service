@@ -2,8 +2,8 @@ using CourseService.Domain.Entities.Abstracts;
 
 namespace CourseService.Domain.Entities.Concretes
 {
-    public class AcademicLevel : Entity<int>
+    public class AcademicLevel : MainEntity<int>
     {
-        public string Name { get; set; } = "";
+        public int AcademicProgramId { get; set; }
     }
 }
