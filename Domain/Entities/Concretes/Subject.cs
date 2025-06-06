@@ -2,11 +2,10 @@ using CourseService.Domain.Entities.Abstracts;
 
 namespace CourseService.Domain.Entities.Concretes
 {
-    public class Subject : Entity<Guid>
+    public class Subject : MainEntity<Guid>
     {
-        public string ShortName { get; set; } = "";
-        public string Code { get; set; } = "";
+        public int Credits { get; set; }
         public int LMSId { get; set; }
-        public Guid CourseId { get; set; }
+        public int AcademicLevelId { get; set; }
     }
 }

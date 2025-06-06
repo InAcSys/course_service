@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace CourseService.Infrastructure.Repositories.Abstracts
 {
     public class Repository<T, TKey>(DbContext dbContext) : IRepository<T, TKey>
-        where T : Entity<TKey>
+        where T : MainEntity<TKey>
     {
         protected readonly DbContext _context = dbContext;
 
