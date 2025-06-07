@@ -9,6 +9,7 @@ namespace CourseService.Domain.DTOs.Subjects
         public int Credits { get; set; }
         public int LMSId { get; set; }
         public int AcademicLevelId { get; set; }
+        public Guid TeacherId { get; set; }
         public IEnumerable<int> AcademicProgramIds { get; set; } = new List<int>();
         public IEnumerable<Guid> RequirementIds { get; set; } = new List<Guid>();
         public Guid TenantId { get; set; }

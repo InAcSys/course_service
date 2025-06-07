@@ -1,6 +1,7 @@
 using AutoMapper;
 using CourseService.Application.Services.Interfaces;
 using CourseService.Domain.DTOs.Courses;
+using CourseService.Domain.DTOs.CourseSubjects;
 using CourseService.Domain.DTOs.Responses;
 using CourseService.Domain.Entities.Concretes;
 using CourseService.Presentation.Responses.Concretes;
@@ -9,10 +10,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace CourseService.Presentation.Controllers
 {
     [ApiController, Route("api/[controller]")]
-    public class CourseController(ISearchableService<Course, Guid> service, IMapper mapper)
-        : ControllerBase
+    public class CourseController(ICourseService service, IMapper mapper) : ControllerBase
     {
-        protected readonly ISearchableService<Course, Guid> _service = service;
+        protected readonly ICourseService _service = service;
         private readonly IMapper _mapper = mapper;
 
         [HttpGet]
@@ -134,6 +134,60 @@ namespace CourseService.Presentation.Controllers
             );
 
             return Ok(response);
+        }
+
+        [HttpPost("assign-subjects")]
+        public async Task<IActionResult> AssignSubjects(
+            [FromBody] CourseSubjectsDTO subjects,
+            [FromQuery] Guid tenantId
+        )
+        {
+            if (!subjects.SubjectsIds.Any())
+            {
+                var error = new ErrorResponse(400, "Empty subjects", null);
+                return StatusCode(error.StatusCode, error);
+            }
+            var result = await _service.AssignSubjects(subjects, tenantId);
+            if (!result)
+            {
+                var error = new ErrorResponse(
+                    400,
+                    "Could not be completed with the assignments",
+                    null
+                );
+                return StatusCode(error.StatusCode, error);
+            }
+            var response = new SuccessResponse<bool>(
+                201,
+                "Assignment successfully completed",
+                result
+            );
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpDelete("revoke-subjects")]
+        public async Task<IActionResult> RevokeSubjects(
+            [FromQuery] Guid tenantId,
+            [FromBody] CourseSubjectsDTO subjects
+        )
+        {
+            if (!subjects.SubjectsIds.Any())
+            {
+                var error = new ErrorResponse(400, "Empty subjects", null);
+                return StatusCode(error.StatusCode, error);
+            }
+            var result = await _service.RevokeSubjects(subjects, tenantId);
+            if (!result)
+            {
+                var error = new ErrorResponse(
+                    400,
+                    "Could not be completed with the revokings",
+                    null
+                );
+                return StatusCode(error.StatusCode, error);
+            }
+            var response = new SuccessResponse<bool>(201, "Revoke successfully completed", result);
+            return StatusCode(response.StatusCode, response);
         }
     }
 }

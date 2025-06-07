@@ -38,13 +38,16 @@ CREATE TABLE
         "Name" VARCHAR(255) NOT NULL,
         "Description" VARCHAR(255) NOT NULL,
         "Code" VARCHAR(100) NOT NULL,
+        "AcademicPeriod" VARCHAR(10) NOT NULL,
         "AcademicLevelId" INT NOT NULL,
+        "AcademicProgramId" INT NOT NULL,
         "IsActive" BOOLEAN NOT NULL,
         "Created" TIMESTAMP NOT NULL,
         "Updated" TIMESTAMP,
         "Deleted" TIMESTAMP,
         "TenantId" UUID NOT NULL,
-        FOREIGN KEY ("AcademicLevelId") REFERENCES "AcademicLevels" ("Id") ON DELETE CASCADE
+        FOREIGN KEY ("AcademicLevelId") REFERENCES "AcademicLevels" ("Id") ON DELETE CASCADE,
+        FOREIGN KEY ("AcademicProgramId") REFERENCES "AcademicPrograms" ("Id") ON DELETE CASCADE
     );
 
 -- Tabla: Subjects
@@ -57,6 +60,7 @@ CREATE TABLE
         "Credits" INT NOT NULL,
         "LMSId" INT NULL,
         "AcademicLevelId" INT NOT NULL,
+        "TeacherId" UUID NOT NULL,
         "IsActive" BOOLEAN NOT NULL,
         "Created" TIMESTAMP NOT NULL,
         "Updated" TIMESTAMP,
@@ -91,4 +95,18 @@ CREATE TABLE
         "TenantId" UUID NOT NULL,
         FOREIGN KEY ("SubjectId") REFERENCES "Subjects" ("Id") ON DELETE CASCADE,
         FOREIGN KEY ("RequisteId") REFERENCES "Subjects" ("Id") ON DELETE CASCADE
+    );
+
+CREATE TABLE
+    IF NOT EXISTS "CourseSubjects" (
+        "Id" SERIAL PRIMARY KEY,
+        "CourseId" UUID NOT NULL,
+        "SubjectId" UUID NOT NULL,
+        "IsActive" BOOLEAN NOT NULL,
+        "Created" TIMESTAMP NOT NULL,
+        "Updated" TIMESTAMP,
+        "Deleted" TIMESTAMP,
+        "TenantId" UUID NOT NULL,
+        FOREIGN KEY ("CourseId") REFERENCES "Courses" ("Id") ON DELETE CASCADE,
+        FOREIGN KEY ("SubjectId") REFERENCES "Subjects" ("Id") ON DELETE CASCADE
     );

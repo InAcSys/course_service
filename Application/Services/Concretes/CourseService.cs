@@ -8,6 +8,6 @@ namespace CourseService.Application.Services.Concretes
     public class CourseService(
         ICreateValidator<Course> createValidator,
         IUpdateValidator<Course> updateValidator,
-        ISearchableRepository<Course, Guid> repository
-    ) : Service<Course, Guid>(createValidator, updateValidator, repository) { }
+        ICourseRepository repository
+    ) : AbstractCourseService(createValidator, updateValidator, repository) { }
 }

@@ -26,7 +26,6 @@ namespace CourseService.Presentation.Configuration
             {
                 throw new ArgumentException("Connection string is not set.");
             }
-            Console.WriteLine(connection);
             services.AddDbContext<DbContext, CourseServiceDbContext>(options =>
                 options.UseNpgsql(
                     connection,
@@ -45,7 +44,7 @@ namespace CourseService.Presentation.Configuration
 
             services.AddScoped<ISubjectService, SubjectService>();
             services.AddScoped<
-                ISearchableService<Course, Guid>,
+                ICourseService,
                 CourseService.Application.Services.Concretes.CourseService
             >();
             services.AddScoped<ISearchableService<AcademicLevel, int>, AcademicLevelService>();
@@ -54,7 +53,8 @@ namespace CourseService.Presentation.Configuration
             services.AddScoped<ISubjectRepository, SubjectRepository>();
             services.AddScoped<IRepository<SubjectRequisite, int>, SubjectRequisitesRepository>();
             services.AddScoped<IRepository<SubjectProgram, int>, SubjectProgramRepository>();
-            services.AddScoped<ISearchableRepository<Course, Guid>, CourseRepository>();
+            services.AddScoped<IRepository<CourseSubject, int>, CourseSubjectRepository>();
+            services.AddScoped<ICourseRepository, CourseRepository>();
             services.AddScoped<
                 ISearchableRepository<AcademicLevel, int>,
                 AcademicLevelRepository

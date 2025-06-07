@@ -19,7 +19,7 @@ namespace CourseService.Infrastructure.Repositories.Abstracts
         {
             try
             {
-                var tasks = programs.Select(async program =>
+                foreach (var program in programs)
                 {
                     var existing = await _context
                         .Set<SubjectProgram>()
@@ -43,9 +43,8 @@ namespace CourseService.Infrastructure.Repositories.Abstracts
                             existing.TenantId
                         );
                     }
-                });
+                }
 
-                await Task.WhenAll(tasks);
                 return true;
             }
             catch
@@ -58,7 +57,7 @@ namespace CourseService.Infrastructure.Repositories.Abstracts
         {
             try
             {
-                var tasks = requisites.Select(async requisite =>
+                foreach (var requisite in requisites)
                 {
                     var existing = await _context
                         .Set<SubjectRequisite>()
@@ -82,9 +81,8 @@ namespace CourseService.Infrastructure.Repositories.Abstracts
                             existing.TenantId
                         );
                     }
-                });
+                }
 
-                await Task.WhenAll(tasks);
                 return true;
             }
             catch
@@ -97,8 +95,9 @@ namespace CourseService.Infrastructure.Repositories.Abstracts
         {
             try
             {
-                var tasks = programs.Select(program =>
-                    _context
+                foreach (var program in programs)
+                {
+                    await _context
                         .Set<SubjectProgram>()
                         .Where(x =>
                             x.SubjectId == program.SubjectId
@@ -109,10 +108,9 @@ namespace CourseService.Infrastructure.Repositories.Abstracts
                             setters
                                 .SetProperty(x => x.IsActive, false)
                                 .SetProperty(x => x.Deleted, DateTime.UtcNow)
-                        )
-                );
+                        );
+                }
 
-                await Task.WhenAll(tasks);
                 return true;
             }
             catch
@@ -125,8 +123,9 @@ namespace CourseService.Infrastructure.Repositories.Abstracts
         {
             try
             {
-                var tasks = requisites.Select(requisite =>
-                    _context
+                foreach (var requisite in requisites)
+                {
+                    await _context
                         .Set<SubjectRequisite>()
                         .Where(x =>
                             x.SubjectId == requisite.SubjectId
@@ -137,9 +136,9 @@ namespace CourseService.Infrastructure.Repositories.Abstracts
                             setters
                                 .SetProperty(x => x.IsActive, false)
                                 .SetProperty(x => x.Deleted, DateTime.UtcNow)
-                        )
-                );
-                await Task.WhenAll(tasks);
+                        );
+                }
+
                 return true;
             }
             catch
