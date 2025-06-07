@@ -1,6 +1,7 @@
 using AutoMapper;
 using CourseService.Application.Services.Interfaces;
 using CourseService.Domain.DTOs.Responses;
+using CourseService.Domain.DTOs.SubjectRequisites;
 using CourseService.Domain.DTOs.Subjects;
 using CourseService.Domain.Entities.Concretes;
 using CourseService.Presentation.Responses.Concretes;
@@ -9,9 +10,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace CourseService.Presentation.Controllers
 {
     [ApiController, Route("api/[controller]")]
-    public class SubjectController(IService<Subject, Guid> service, IMapper mapper) : ControllerBase
+    public class SubjectController(ISubjectService service, IMapper mapper) : ControllerBase
     {
-        protected readonly IService<Subject, Guid> _service = service;
+        protected readonly ISubjectService _service = service;
         private readonly IMapper _mapper = mapper;
 
         [HttpGet]
@@ -139,6 +140,114 @@ namespace CourseService.Presentation.Controllers
             );
 
             return Ok(response);
+        }
+
+        [HttpPost("assign-requirements")]
+        public async Task<IActionResult> AssignRequirements(
+            [FromQuery] Guid tenantId,
+            [FromBody] SubjectRequisitesDTO requisites
+        )
+        {
+            if (!requisites.RequisitesIds.Any())
+            {
+                var error = new ErrorResponse(400, "Empty requirements", null);
+                return StatusCode(error.StatusCode, error);
+            }
+            var result = await _service.AssignRequisites(requisites, tenantId);
+            if (!result)
+            {
+                var error = new ErrorResponse(
+                    400,
+                    "Could not be completed with the assignments",
+                    null
+                );
+                return StatusCode(error.StatusCode, error);
+            }
+            var response = new SuccessResponse<bool>(
+                201,
+                "Assignment successfully completed",
+                result
+            );
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpPost("assign-programs")]
+        public async Task<IActionResult> AssignPrograms(
+            [FromQuery] Guid tenantId,
+            [FromBody] SubjectProgramsDTO programs
+        )
+        {
+            if (!programs.ProgramsIds.Any())
+            {
+                var error = new ErrorResponse(400, "Empty programs", null);
+                return StatusCode(error.StatusCode, error);
+            }
+            var result = await _service.AssignPrograms(programs, tenantId);
+            if (!result)
+            {
+                var error = new ErrorResponse(
+                    400,
+                    "Could not be completed with the assignments",
+                    null
+                );
+                return StatusCode(error.StatusCode, error);
+            }
+            var response = new SuccessResponse<bool>(
+                201,
+                "Assignment successfully completed",
+                result
+            );
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpDelete("revoke-requirements")]
+        public async Task<IActionResult> RevokeRequirements(
+            [FromQuery] Guid tenantId,
+            [FromBody] SubjectRequisitesDTO requisites
+        )
+        {
+            if (!requisites.RequisitesIds.Any())
+            {
+                var error = new ErrorResponse(400, "Empty requirements", null);
+                return StatusCode(error.StatusCode, error);
+            }
+            var result = await _service.RevokeRequisites(requisites, tenantId);
+            if (!result)
+            {
+                var error = new ErrorResponse(
+                    400,
+                    "Could not be completed with the revokings",
+                    null
+                );
+                return StatusCode(error.StatusCode, error);
+            }
+            var response = new SuccessResponse<bool>(201, "Revoke successfully completed", result);
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpDelete("revoke-programs")]
+        public async Task<IActionResult> RevokePrograms(
+            [FromQuery] Guid tenantId,
+            [FromBody] SubjectProgramsDTO programs
+        )
+        {
+            if (!programs.ProgramsIds.Any())
+            {
+                var error = new ErrorResponse(400, "Empty programs", null);
+                return StatusCode(error.StatusCode, error);
+            }
+            var result = await _service.RevokePrograms(programs, tenantId);
+            if (!result)
+            {
+                var error = new ErrorResponse(
+                    400,
+                    "Could not be completed with the revokings",
+                    null
+                );
+                return StatusCode(error.StatusCode, error);
+            }
+            var response = new SuccessResponse<bool>(201, "Revoke successfully completed", result);
+            return StatusCode(response.StatusCode, response);
         }
     }
 }

@@ -6,35 +6,20 @@ using FluentValidation;
 
 namespace CourseService.Application.Services.Abstracts
 {
-    public class Service<T, TKey>(
+    public class AbstractService<T, TKey>(
         ICreateValidator<T> createValidator,
         IUpdateValidator<T> updateValidator,
-        ISearchableRepository<T, TKey> repository
-    ) : ISearchableService<T, TKey>
-        where T : MainEntity<TKey>
+        IRepository<T, TKey> repository
+    ) : IService<T, TKey>
+        where T : Entity<TKey>
     {
         protected readonly ICreateValidator<T> _createValidator = createValidator;
         protected readonly IUpdateValidator<T> _updateValidator = updateValidator;
-        protected readonly ISearchableRepository<T, TKey> _repository = repository;
+        protected readonly IRepository<T, TKey> _repository = repository;
 
         public Task<int> Count(Guid tenantId)
         {
             return _repository.Count(tenantId);
-        }
-
-        public async Task<IEnumerable<T>> Search(
-            int pageNumber,
-            int pageSize,
-            Guid tenantId,
-            string search
-        )
-        {
-            return await _repository.Search(pageNumber, pageSize, tenantId, search);
-        }
-
-        public Task<int> CountSearchResults(string search, Guid tenantId)
-        {
-            return _repository.CountSearchResults(search, tenantId);
         }
 
         public virtual async Task<T> Create(T entity)
@@ -43,12 +28,6 @@ namespace CourseService.Application.Services.Abstracts
             if (!result.IsValid)
             {
                 throw new ValidationException(result.Errors);
-            }
-            var verifyExist = await _repository.GetByName(entity.Name, entity.TenantId);
-
-            if (verifyExist is not null)
-            {
-                throw new InvalidOperationException("Entity is already exists");
             }
 
             var createdEntity = await _repository.Create(entity);

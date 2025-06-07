@@ -67,7 +67,7 @@ CREATE TABLE
 
 CREATE TABLE
     IF NOT EXISTS "SubjectPrograms" (
-        "Id" UUID PRIMARY KEY,
+        "Id" SERIAL PRIMARY KEY,
         "SubjectId" UUID NOT NULL,
         "AcademicProgramId" INT NOT NULL,
         "IsActive" BOOLEAN NOT NULL,
@@ -81,7 +81,7 @@ CREATE TABLE
 
 CREATE TABLE
     IF NOT EXISTS "SubjectRequisites" (
-        "Id" UUID PRIMARY KEY,
+        "Id" SERIAL PRIMARY KEY,
         "SubjectId" UUID NOT NULL,
         "RequisteId" UUID NOT NULL,
         "IsActive" BOOLEAN NOT NULL,
