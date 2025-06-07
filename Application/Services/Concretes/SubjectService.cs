@@ -8,6 +8,6 @@ namespace CourseService.Application.Services.Concretes
     public class SubjectService(
         ICreateValidator<Subject> createValidator,
         IUpdateValidator<Subject> updateValidator,
-        IRepository<Subject, Guid> repository
-    ) : Service<Subject, Guid>(createValidator, updateValidator, repository) { }
+        ISubjectRepository repository
+    ) : AbstractSubjectService(repository, createValidator, updateValidator) { }
 }

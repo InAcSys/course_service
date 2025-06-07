@@ -8,5 +8,6 @@ namespace CourseService.Domain.DTOs.Subjects
         public int Credits { get; set; }
         public int LMSId { get; set; }
         public int AcademicLevelId { get; set; }
+        public Guid TeacherId { get; set; }
     }
 }

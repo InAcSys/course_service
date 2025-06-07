@@ -9,10 +9,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace CourseService.Presentation.Controllers
 {
     [ApiController, Route("api/[controller]")]
-    public class AcademicProgramController(IService<AcademicProgram, int> service, IMapper mapper)
-        : ControllerBase
+    public class AcademicProgramController(
+        ISearchableService<AcademicProgram, int> service,
+        IMapper mapper
+    ) : ControllerBase
     {
-        protected readonly IService<AcademicProgram, int> _service = service;
+        protected readonly ISearchableService<AcademicProgram, int> _service = service;
         private readonly IMapper _mapper = mapper;
 
         [HttpGet]

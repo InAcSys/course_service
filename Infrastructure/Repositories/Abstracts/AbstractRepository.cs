@@ -4,8 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CourseService.Infrastructure.Repositories.Abstracts
 {
-    public class Repository<T, TKey>(DbContext dbContext) : ISearchableRepository<T, TKey>
-        where T : MainEntity<TKey>
+    public class AbstractRepository<T, TKey>(DbContext dbContext) : IRepository<T, TKey>
+        where T : Entity<TKey>
     {
         protected readonly DbContext _context = dbContext;
 
@@ -125,76 +125,6 @@ namespace CourseService.Infrastructure.Repositories.Abstracts
                 .Where(user => user.TenantId == tenantId && user.IsActive)
                 .CountAsync();
             return size;
-        }
-
-        public async Task<IEnumerable<T>> Search(
-            int pageNumber,
-            int pageSize,
-            Guid tenantId,
-            string search
-        )
-        {
-            if (pageNumber < 1)
-            {
-                throw new ArgumentOutOfRangeException(
-                    nameof(pageNumber),
-                    "Page number must be greater than or equal to 1."
-                );
-            }
-
-            if (pageSize < 1)
-            {
-                throw new ArgumentOutOfRangeException(
-                    nameof(pageSize),
-                    "Page size must be greater than or equal to 1."
-                );
-            }
-
-            var skip = (pageNumber - 1) * pageSize;
-
-            var query = _context.Set<T>().Where(x => x.IsActive);
-
-            if (tenantId != Guid.Empty)
-            {
-                query = query.Where(x => x.TenantId == tenantId || x.TenantId == Guid.Empty);
-            }
-
-            if (!string.IsNullOrWhiteSpace(search))
-            {
-                search = search.ToLower();
-                query = query.Where(x => x.Name.ToLower().Contains(search));
-            }
-
-            var entities = await query.Skip(skip).Take(pageSize).ToListAsync();
-
-            return entities;
-        }
-
-        public async Task<int> CountSearchResults(string search, Guid tenantId)
-        {
-            if (string.IsNullOrWhiteSpace(search))
-                return 0;
-
-            search = search.ToLower();
-
-            var query = _context.Set<T>().Where(user => user.IsActive);
-
-            if (tenantId != Guid.Empty)
-            {
-                query = query.Where(user =>
-                    user.TenantId == tenantId || user.TenantId == Guid.Empty
-                );
-            }
-
-            return await query.Where(x => x.Name.ToLower().Contains(search)).CountAsync();
-        }
-
-        public async Task<T?> GetByName(string name, Guid tenantId)
-        {
-            var entity = await _context
-                .Set<T>()
-                .FirstOrDefaultAsync(x => x.Name == name && x.TenantId == tenantId);
-            return entity;
         }
     }
 }

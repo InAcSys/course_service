@@ -26,7 +26,6 @@ namespace CourseService.Presentation.Configuration
             {
                 throw new ArgumentException("Connection string is not set.");
             }
-            Console.WriteLine(connection);
             services.AddDbContext<DbContext, CourseServiceDbContext>(options =>
                 options.UseNpgsql(
                     connection,
@@ -43,18 +42,27 @@ namespace CourseService.Presentation.Configuration
             services.AddScoped<ICreateValidator<AcademicProgram>, CreateAcademicProgramValidator>();
             services.AddScoped<IUpdateValidator<AcademicProgram>, UpdateAcademicProgramValidator>();
 
-            services.AddScoped<IService<Subject, Guid>, SubjectService>();
+            services.AddScoped<ISubjectService, SubjectService>();
             services.AddScoped<
-                IService<Course, Guid>,
+                ICourseService,
                 CourseService.Application.Services.Concretes.CourseService
             >();
-            services.AddScoped<IService<AcademicLevel, int>, AcademicLevelService>();
-            services.AddScoped<IService<AcademicProgram, int>, AcademicProgramService>();
+            services.AddScoped<ISearchableService<AcademicLevel, int>, AcademicLevelService>();
+            services.AddScoped<ISearchableService<AcademicProgram, int>, AcademicProgramService>();
 
-            services.AddScoped<IRepository<Subject, Guid>, SubjectRepository>();
-            services.AddScoped<IRepository<Course, Guid>, CourseRepository>();
-            services.AddScoped<IRepository<AcademicLevel, int>, AcademicLevelRepository>();
-            services.AddScoped<IRepository<AcademicProgram, int>, AcademicProgramRepository>();
+            services.AddScoped<ISubjectRepository, SubjectRepository>();
+            services.AddScoped<IRepository<SubjectRequisite, int>, SubjectRequisitesRepository>();
+            services.AddScoped<IRepository<SubjectProgram, int>, SubjectProgramRepository>();
+            services.AddScoped<IRepository<CourseSubject, int>, CourseSubjectRepository>();
+            services.AddScoped<ICourseRepository, CourseRepository>();
+            services.AddScoped<
+                ISearchableRepository<AcademicLevel, int>,
+                AcademicLevelRepository
+            >();
+            services.AddScoped<
+                ISearchableRepository<AcademicProgram, int>,
+                AcademicProgramRepository
+            >();
 
             services.AddAutoMapper(typeof(SubjectProfile));
             services.AddAutoMapper(typeof(CourseProfile));
