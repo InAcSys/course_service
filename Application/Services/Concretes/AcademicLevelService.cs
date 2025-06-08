@@ -8,6 +8,15 @@ namespace CourseService.Application.Services.Concretes
     public class AcademicLevelService(
         ICreateValidator<AcademicLevel> createValidator,
         IUpdateValidator<AcademicLevel> updateValidator,
-        ISearchableRepository<AcademicLevel, int> repository
-    ) : Service<AcademicLevel, int>(createValidator, updateValidator, repository) { }
+        ILevelRepository levelRepository,
+        ICourseRepository courseRepository,
+        ISubjectRepository subjectRepository
+    )
+        : AbstractLevelService(
+            createValidator,
+            updateValidator,
+            levelRepository,
+            subjectRepository,
+            courseRepository
+        ) { }
 }

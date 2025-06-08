@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using AutoMapper;
 using CourseService.Application.Services.Interfaces;
 using CourseService.Domain.DTOs.AcademicLevels;
@@ -9,12 +10,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace CourseService.Presentation.Controllers
 {
     [ApiController, Route("api/[controller]")]
-    public class AcademicLevelController(
-        ISearchableService<AcademicLevel, int> service,
-        IMapper mapper
-    ) : ControllerBase
+    public class AcademicLevelController(ILevelService service, IMapper mapper) : ControllerBase
     {
-        protected readonly ISearchableService<AcademicLevel, int> _service = service;
+        protected readonly ILevelService _service = service;
         private readonly IMapper _mapper = mapper;
 
         [HttpGet]
@@ -143,6 +141,38 @@ namespace CourseService.Presentation.Controllers
                 new PaginatedResponseDTO<AcademicLevel>(result.ToList(), size, pageNumber, pageSize)
             );
 
+            return Ok(response);
+        }
+
+        [HttpGet("get-subjects/{id}")]
+        public async Task<IActionResult> GetSubjects([FromRoute] int id, [FromQuery] Guid tenantId)
+        {
+            var existLevel = await _service.GetById(id, tenantId);
+            if (existLevel is null)
+            {
+                var error = new ErrorResponse(404, "Academic level does not exist", null);
+                return NotFound(error);
+            }
+            var subjects = _service.GetSubjects(id, tenantId);
+            var response = new SuccessResponse<IEnumerable<Subject>>(
+                200,
+                "Subjects found",
+                subjects
+            );
+            return Ok(response);
+        }
+
+        [HttpGet("get-courses/{id}")]
+        public async Task<IActionResult> GetCourses([FromRoute] int id, [FromQuery] Guid tenantId)
+        {
+            var existLevel = await _service.GetById(id, tenantId);
+            if (existLevel is null)
+            {
+                var error = new ErrorResponse(404, "Academic level does not exist", null);
+                return NotFound(error);
+            }
+            var courses = _service.GetCourses(id, tenantId);
+            var response = new SuccessResponse<IEnumerable<Course>>(200, "Courses found", courses);
             return Ok(response);
         }
     }

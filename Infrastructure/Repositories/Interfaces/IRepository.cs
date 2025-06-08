@@ -8,5 +8,6 @@ namespace CourseService.Infrastructure.Repositories.Interfaces
         Task<T> Update(TKey id, T entity, Guid tenantId);
         Task<bool> Delete(TKey id, Guid tenantId);
         Task<int> Count(Guid tenantId);
+        IEnumerable<T> GetAllBy(Func<T, bool> predicate);
     }
 }

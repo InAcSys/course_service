@@ -196,5 +196,11 @@ namespace CourseService.Infrastructure.Repositories.Abstracts
                 .FirstOrDefaultAsync(x => x.Name == name && x.TenantId == tenantId);
             return entity;
         }
+
+        public IEnumerable<T> GetAllBy(Func<T, bool> predicate)
+        {
+            var entities = _context.Set<T>().Where(predicate).ToList();
+            return entities;
+        }
     }
 }
