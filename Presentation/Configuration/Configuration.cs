@@ -48,18 +48,17 @@ namespace CourseService.Presentation.Configuration
                 CourseService.Application.Services.Concretes.CourseService
             >();
             services.AddScoped<ILevelService, AcademicLevelService>();
-            services.AddScoped<ISearchableService<AcademicProgram, int>, AcademicProgramService>();
+            services.AddScoped<IProgramService, AcademicProgramService>();
 
             services.AddScoped<ISubjectRepository, SubjectRepository>();
             services.AddScoped<IRepository<SubjectRequisite, int>, SubjectRequisitesRepository>();
             services.AddScoped<IRepository<SubjectProgram, int>, SubjectProgramRepository>();
             services.AddScoped<IRepository<CourseSubject, int>, CourseSubjectRepository>();
+            services.AddScoped<IRepository<ProgramLevel, int>, ProgramLevelRepository>();
+            services.AddScoped<IRepository<ProgramSubject, int>, ProgramSubjectRepository>();
             services.AddScoped<ICourseRepository, CourseRepository>();
             services.AddScoped<ILevelRepository, AcademicLevelRepository>();
-            services.AddScoped<
-                ISearchableRepository<AcademicProgram, int>,
-                AcademicProgramRepository
-            >();
+            services.AddScoped<IProgramRepository, AcademicProgramRepository>();
 
             services.AddAutoMapper(typeof(SubjectProfile));
             services.AddAutoMapper(typeof(CourseProfile));
