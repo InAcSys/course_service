@@ -126,5 +126,11 @@ namespace CourseService.Infrastructure.Repositories.Abstracts
                 .CountAsync();
             return size;
         }
+
+        public IEnumerable<T> GetAllBy(Func<T, bool> predicate)
+        {
+            var entities = _context.Set<T>().Where(predicate).ToList();
+            return entities;
+        }
     }
 }

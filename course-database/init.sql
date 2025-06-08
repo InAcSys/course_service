@@ -22,13 +22,12 @@ CREATE TABLE
         "Name" VARCHAR(255) NOT NULL,
         "Description" VARCHAR(255) NOT NULL,
         "Code" VARCHAR(100) NOT NULL,
-        "AcademicProgramId" INT NOT NULL,
+        "Order" INT NULL,
         "IsActive" BOOLEAN NOT NULL,
         "Created" TIMESTAMP NOT NULL,
         "Updated" TIMESTAMP,
         "Deleted" TIMESTAMP,
-        "TenantId" UUID NOT NULL,
-        FOREIGN KEY ("AcademicProgramId") REFERENCES "AcademicPrograms" ("Id") ON DELETE CASCADE
+        "TenantId" UUID NOT NULL
     );
 
 -- Tabla: Courses

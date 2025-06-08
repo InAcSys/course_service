@@ -47,7 +47,7 @@ namespace CourseService.Presentation.Configuration
                 ICourseService,
                 CourseService.Application.Services.Concretes.CourseService
             >();
-            services.AddScoped<ISearchableService<AcademicLevel, int>, AcademicLevelService>();
+            services.AddScoped<ILevelService, AcademicLevelService>();
             services.AddScoped<ISearchableService<AcademicProgram, int>, AcademicProgramService>();
 
             services.AddScoped<ISubjectRepository, SubjectRepository>();
@@ -55,10 +55,7 @@ namespace CourseService.Presentation.Configuration
             services.AddScoped<IRepository<SubjectProgram, int>, SubjectProgramRepository>();
             services.AddScoped<IRepository<CourseSubject, int>, CourseSubjectRepository>();
             services.AddScoped<ICourseRepository, CourseRepository>();
-            services.AddScoped<
-                ISearchableRepository<AcademicLevel, int>,
-                AcademicLevelRepository
-            >();
+            services.AddScoped<ILevelRepository, AcademicLevelRepository>();
             services.AddScoped<
                 ISearchableRepository<AcademicProgram, int>,
                 AcademicProgramRepository
