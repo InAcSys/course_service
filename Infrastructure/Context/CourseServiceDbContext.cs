@@ -12,5 +12,7 @@ namespace CourseService.Infrastructure.Context
         public DbSet<CourseSubject> CourseSubjects { get; set; }
         public DbSet<AcademicLevel> AcademicLevels { get; set; }
         public DbSet<AcademicProgram> AcademicPrograms { get; set; }
+        public DbSet<ProgramSubject> ProgramSubjects { get; set; }
+        public DbSet<ProgramLevel> ProgramLevels { get; set; }
     }
 }

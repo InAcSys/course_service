@@ -8,6 +8,9 @@ CREATE TABLE
         "Name" VARCHAR(255) NOT NULL,
         "Description" VARCHAR(255) NOT NULL,
         "Code" VARCHAR(100) NOT NULL,
+        "DegreeType" VARCHAR(100) NULL,
+        "DurationType" VARCHAR(100) NOT NULL,
+        "Periods" INT NOT NULL,
         "IsActive" BOOLEAN NOT NULL,
         "Created" TIMESTAMP NOT NULL,
         "Updated" TIMESTAMP,
@@ -108,4 +111,32 @@ CREATE TABLE
         "TenantId" UUID NOT NULL,
         FOREIGN KEY ("CourseId") REFERENCES "Courses" ("Id") ON DELETE CASCADE,
         FOREIGN KEY ("SubjectId") REFERENCES "Subjects" ("Id") ON DELETE CASCADE
+    );
+
+CREATE TABLE
+    IF NOT EXISTS "ProgramSubjects" (
+        "Id" SERIAL PRIMARY KEY,
+        "ProgramId" INT NOT NULL,
+        "SubjectId" UUID NOT NULL,
+        "IsActive" BOOLEAN NOT NULL,
+        "Created" TIMESTAMP NOT NULL,
+        "Updated" TIMESTAMP,
+        "Deleted" TIMESTAMP,
+        "TenantId" UUID NOT NULL,
+        FOREIGN KEY ("ProgramId") REFERENCES "AcademicPrograms" ("Id") ON DELETE CASCADE,
+        FOREIGN KEY ("SubjectId") REFERENCES "Subjects" ("Id") ON DELETE CASCADE
+    );
+
+CREATE TABLE
+    IF NOT EXISTS "ProgramLevels" (
+        "Id" SERIAL PRIMARY KEY,
+        "ProgramId" INT NOT NULL,
+        "LevelId" INT NOT NULL,
+        "IsActive" BOOLEAN NOT NULL,
+        "Created" TIMESTAMP NOT NULL,
+        "Updated" TIMESTAMP,
+        "Deleted" TIMESTAMP,
+        "TenantId" UUID NOT NULL,
+        FOREIGN KEY ("ProgramId") REFERENCES "AcademicPrograms" ("Id") ON DELETE CASCADE,
+        FOREIGN KEY ("LevelId") REFERENCES "AcademicLevels" ("Id") ON DELETE CASCADE
     );
