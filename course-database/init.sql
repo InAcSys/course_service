@@ -61,7 +61,7 @@ CREATE TABLE
         "Code" VARCHAR(100) NOT NULL,
         "Credits" INT NOT NULL,
         "LMSId" INT NULL,
-        "AcademicLevelId" INT NOT NULL,
+        "AcademicLevelId" INT NULL,
         "TeacherId" UUID NOT NULL,
         "IsActive" BOOLEAN NOT NULL,
         "Created" TIMESTAMP NOT NULL,
