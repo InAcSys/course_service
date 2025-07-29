@@ -91,6 +91,48 @@ namespace CourseService.Infrastructure.Repositories.Abstracts
             }
         }
 
+        public async Task<IEnumerable<Subject>> GetMySubjects(
+            Guid teacherId,
+            Guid tenantId,
+            int pageNumber,
+            int pageSize
+        )
+        {
+            if (pageNumber < 1)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(pageNumber),
+                    "Page number must be greater than or equal to 1."
+                );
+            }
+
+            if (pageSize < 1)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(pageSize),
+                    "Page size must be greater than or equal to 1."
+                );
+            }
+
+            var skip = (pageNumber - 1) * pageSize;
+
+            var query = _context.Set<Subject>().Where(x => x.IsActive);
+
+            if (tenantId != Guid.Empty)
+            {
+                query = query.Where(x => x.TenantId == tenantId || x.TenantId == Guid.Empty);
+            }
+
+            if (teacherId != Guid.Empty)
+            {
+                query = query.Where(x => x.TeacherId == teacherId || x.TeacherId == Guid.Empty);
+            }
+
+            var subjects = await query.Skip(skip).Take(pageSize).ToListAsync();
+
+            return subjects;
+        }
+
         public async Task<bool> RevokePrograms(IEnumerable<SubjectProgram> programs)
         {
             try

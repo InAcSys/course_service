@@ -10,5 +10,11 @@ namespace CourseService.Application.Services.Interfaces
         Task<bool> RevokeRequisites(SubjectRequisitesDTO requisites, Guid tenantId);
         Task<bool> AssignPrograms(SubjectProgramsDTO programs, Guid tenantId);
         Task<bool> RevokePrograms(SubjectProgramsDTO programs, Guid tenantId);
+        Task<IEnumerable<Subject>> GetMySubjects(
+            Guid teacherId,
+            Guid tenantId,
+            int pageNumber,
+            int pageSize
+        );
     }
 }

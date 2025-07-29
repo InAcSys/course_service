@@ -249,5 +249,22 @@ namespace CourseService.Presentation.Controllers
             var response = new SuccessResponse<bool>(201, "Revoke successfully completed", result);
             return StatusCode(response.StatusCode, response);
         }
+
+        [HttpGet("my-subjects/teacher/{teacherId}")]
+        public async Task<IActionResult> GetMySubjects(
+            [FromRoute] Guid teacherId = default,
+            [FromQuery] Guid tenantId = default,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10
+        )
+        {
+            var result = await _service.GetMySubjects(teacherId, tenantId, pageNumber, pageSize);
+            var response = new SuccessResponse<PaginatedResponseDTO<Subject>>(
+                200,
+                "Courses successfully completed",
+                new PaginatedResponseDTO<Subject>(result.ToList(), 0, pageNumber, pageSize)
+            );
+            return StatusCode(response.StatusCode, response);
+        }
     }
 }

@@ -90,5 +90,21 @@ namespace CourseService.Application.Services.Abstracts
             }
             return programsList;
         }
+
+        public async Task<IEnumerable<Subject>> GetMySubjects(
+            Guid teacherId,
+            Guid tenantId,
+            int pageNumber,
+            int pageSize
+        )
+        {
+            var result = await _subjectRepository.GetMySubjects(
+                teacherId,
+                tenantId,
+                pageNumber,
+                pageSize
+            );
+            return result;
+        }
     }
 }

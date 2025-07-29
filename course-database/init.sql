@@ -57,9 +57,10 @@ CREATE TABLE
     IF NOT EXISTS "Subjects" (
         "Id" UUID PRIMARY KEY,
         "Name" VARCHAR(255) NOT NULL,
-        "Description" VARCHAR(100) NOT NULL,
+        "Description" VARCHAR(300) NOT NULL,
         "Code" VARCHAR(100) NOT NULL,
         "Credits" INT NOT NULL,
+        "ImageUrl" VARCHAR(255) NULL,
         "LMSId" INT NULL,
         "AcademicLevelId" INT NULL,
         "TeacherId" UUID NOT NULL,

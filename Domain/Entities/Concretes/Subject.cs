@@ -5,6 +5,7 @@ namespace CourseService.Domain.Entities.Concretes
     public class Subject : MainEntity<Guid>
     {
         public int Credits { get; set; }
+        public string ImageUrl { get; set; } = "";
         public int LMSId { get; set; }
         public int AcademicLevelId { get; set; }
         public Guid TeacherId { get; set; }
